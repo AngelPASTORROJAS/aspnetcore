@@ -15,7 +15,7 @@ jobs:
         dotnet-version: 8.x
 
     - name: Install SonarScanner
-      run: dotnet tool install --global dotnet-sonarscanner --version 6.2.0
+      run: dotnet tool install --global dotnet-sonarscanner
 
     - name: Restore
       run: dotnet restore
