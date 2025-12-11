@@ -21,23 +21,20 @@ jobs:
           fetch-depth: 0
 
       # 2. Setup the .NET SDK (essential for dotnet commands)
-      - name: Install .NET 10.x
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: |
-            10.x
-          dotnet-quality: preview
       - name: Install .NET 8.x
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            8.x
+          # Use a single, recent stable version (like 8.0) for reliability.
+          dotnet-version: '8.0.x'
+
       - name: Check Installed Dotnet Versions
         run: dotnet --info
 
-      # 3. Install SonarScanner for .NET (the MSBuild/C# specific scanner)
+      # 3. Install SonarScanner for .NET (FIXED ARGUMENT)
       - name: Install SonarScanner for .NET
-        run: dotnet tool install --global dotnet-sonarscanner --version 11.0.0 -s https://api.nuget.org/v3/index.json
+        run: |
+          # Use the correct argument: '--add-source'
+          dotnet tool install --global dotnet-sonarscanner --version 11.0.0 --add-source https://api.nuget.org/v3/index.json
 
       # 4. BEGIN Analysis
       - name: Begin SonarCloud Scan
@@ -51,7 +48,6 @@ jobs:
       # 5. BUILD the Project (CRITICAL for C# static analysis)
       - name: Build Project to run Roslyn Analyzers
         # This step runs the C# Roslyn Analyzers which generate the analysis data.
-        # You can use --no-restore if you're sure your dependencies are already restored.
         run: dotnet build --no-incremental
 
       # 6. END Analysis
