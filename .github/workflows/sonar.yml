@@ -10,3 +10,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.projectKey=AngelPASTORROJAS_aspnetcore
+          -Dsonar.organization=angelpastorrojas
+          -Dsonar.c.file.suffixes=-
+          -Dsonar.cpp.file.suffixes=-
+          -Dsonar.objc.file.suffixes=-
+          -Dsonar.exclusions=/node_modules/,/out/,/dist/,/build/,/*.dart,/.c,**/.cpp,/*.m,/.mm,**/.h
