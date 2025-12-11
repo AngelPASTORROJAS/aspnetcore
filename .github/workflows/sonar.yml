@@ -21,10 +21,17 @@ jobs:
           fetch-depth: 0
 
       # 2. Setup the .NET SDK (essential for dotnet commands)
-      - name: Setup .NET 8.0
-        uses: actions/setup-dotnet@v4
+      - name: Install .NET 10.x
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.0.22'
+          dotnet-version: |
+            10.x
+          dotnet-quality: preview
+      - name: Install .NET 8.x
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.x
 
       # 3. Install SonarScanner for .NET (the MSBuild/C# specific scanner)
       - name: Install SonarScanner for .NET
