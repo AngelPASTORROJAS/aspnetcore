@@ -1,20 +1,51 @@
-name: SonarCloud
-on: [push, pull_request]
+name: SonarCloud C# Static Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+
 jobs:
   sonar:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@v3
-      env:
-        GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      with:
-        args: >
-          -Dsonar.projectKey=AngelPASTORROJAS_aspnetcore
-          -Dsonar.organization=angelpastorrojas
-          -Dsonar.sources=.
-          -Dsonar.inclusions=*/*.cs
+      # 1. Checkout the code (mandatory for SonarCloud and history)
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2. Setup the .NET SDK (essential for dotnet commands)
+      - name: Setup .NET 8.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # 3. Install SonarScanner for .NET (the MSBuild/C# specific scanner)
+      - name: Install SonarScanner for .NET
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      # 4. BEGIN Analysis
+      - name: Begin SonarCloud Scan
+        run: |
+          dotnet sonarscanner begin \
+            /k:"AngelPASTORROJAS_aspnetcore" \
+            /o:"angelpastorrojas" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io"
+
+      # 5. BUILD the Project (CRITICAL for C# static analysis)
+      - name: Build Project to run Roslyn Analyzers
+        # This step runs the C# Roslyn Analyzers which generate the analysis data.
+        # You can use --no-restore if you're sure your dependencies are already restored.
+        run: dotnet build --no-incremental
+
+      # 6. END Analysis
+      - name: End SonarCloud Scan
+        # This step collects the Roslyn analysis output and sends it to SonarCloud.
+        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
