@@ -1,0 +1,24 @@
+name: SonarCloud
+on: [push, pull_request]
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@v3
+      env:
+        GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.projectKey=AngelPASTORROJAS_aspnetcore
+          -Dsonar.organization=angelpastorrojas
+          -Dsonar.sources=.
+          -Dsonar.exclusions=**/*.html,**/*.htm,**/*.ts,**/*.js,**/*.cpp,**/*.h,**/*.java,**/*.ps1,**/*.dart,**/*.config,**/*.json,**/*.xml,node_modules/**,wwwroot/**,bin/**,obj/**
+          -Dsonar.c.file.suffixes=-
+          -Dsonar.cpp.file.suffixes=-
+          -Dsonar.objc.file.suffixes=-
+          -Dsonar.javascript.file.suffixes=-
