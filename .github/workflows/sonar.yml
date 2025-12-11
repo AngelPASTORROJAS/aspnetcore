@@ -21,11 +21,19 @@ jobs:
           fetch-depth: 0
 
       # 2. Setup the .NET SDK (essential for dotnet commands)
-      - name: Install .NET 8.x
-        uses: actions/setup-dotnet@v4
+      - name: Install .NET 10.x
+        uses: actions/setup-dotnet@v5
         with:
-          # Use a single, recent stable version (like 8.0) for reliability.
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            10.x
+          dotnet-quality: preview
+
+      # for MCP servers
+      - name: Install .NET 8.x
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.x
 
       - name: Check Installed Dotnet Versions
         run: dotnet --info
@@ -47,7 +55,6 @@ jobs:
 
       # 5. BUILD the Project (CRITICAL for C# static analysis)
       - name: Build Project to run Roslyn Analyzers
-        # This step runs the C# Roslyn Analyzers which generate the analysis data.
         run: dotnet build --no-incremental
 
       # 6. END Analysis
