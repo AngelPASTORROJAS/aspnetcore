@@ -32,10 +32,12 @@ jobs:
         with:
           dotnet-version: |
             8.x
+      - name: Check Installed Dotnet Versions
+        run: dotnet --info
 
       # 3. Install SonarScanner for .NET (the MSBuild/C# specific scanner)
       - name: Install SonarScanner for .NET
-        run: dotnet tool install --global dotnet-sonarscanner
+        run: dotnet tool install --global dotnet-sonarscanner --version 11.0.0 -s https://api.nuget.org/v3/index.json
 
       # 4. BEGIN Analysis
       - name: Begin SonarCloud Scan
