@@ -53,11 +53,12 @@ jobs:
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io"
 
-      # 5. BUILD the Project (CRITICAL for C# static analysis)
-      - name: Build Project to run Roslyn Analyzers
-        run: dotnet build --no-incremental
+      # 5. EXECUTE OFFICIAL BUILD SCRIPT (CRITICAL FIX)
+      - name: Run Official Build Script for ASP.NET Core
+        # The build.sh script handles restoring, building, and correctly
+        # setting up the complex environment for the entire repository.
+        run: ./build.sh
 
       # 6. END Analysis
       - name: End SonarCloud Scan
-        # This step collects the Roslyn analysis output and sends it to SonarCloud.
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
