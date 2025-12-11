@@ -1,64 +1,43 @@
-name: SonarCloud C# Static Analysis
-
+name: SonarCloud C# Analysis
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
     types: [opened, synchronize, reopened]
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   sonar:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Checkout the code (mandatory for SonarCloud and history)
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      # 2. Setup the .NET SDK (essential for dotnet commands)
-      - name: Install .NET 10.x
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: |
-            10.x
-          dotnet-quality: preview
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 8.x
 
-      # for MCP servers
-      - name: Install .NET 8.x
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: |
-            8.x
+    - name: Install SonarScanner
+      run: dotnet tool install --global dotnet-sonarscanner --version 6.2.0
 
-      - name: Check Installed Dotnet Versions
-        run: dotnet --info
+    - name: Restore
+      run: dotnet restore
 
-      # 3. Install SonarScanner for .NET (FIXED ARGUMENT)
-      - name: Install SonarScanner for .NET
-        run: |
-          # Use the correct argument: '--add-source'
-          dotnet tool install --global dotnet-sonarscanner --version 11.0.0 --add-source https://api.nuget.org/v3/index.json
+    - name: Begin SonarCloud
+      run: |
+        dotnet sonarscanner begin \
+          /k:"AngelPASTORROJAS_aspnetcore" \
+          /o:"angelpastorrojas" \
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
+          /d:sonar.cs.vstest.reportsPaths="**/TEST-*.xml"
 
-      # 4. BEGIN Analysis
-      - name: Begin SonarCloud Scan
-        run: |
-          dotnet sonarscanner begin \
-            /k:"AngelPASTORROJAS_aspnetcore" \
-            /o:"angelpastorrojas" \
-            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.host.url="https://sonarcloud.io"
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
 
-      # 5. EXECUTE OFFICIAL BUILD SCRIPT (CRITICAL FIX)
-      - name: Run Official Build Script for ASP.NET Core
-        # The build.sh script handles restoring, building, and correctly
-        # setting up the complex environment for the entire repository.
-        run: ./build.sh
-
-      # 6. END Analysis
-      - name: End SonarCloud Scan
-        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+    - name: End SonarCloud
+      run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
