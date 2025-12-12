@@ -26,7 +26,7 @@ jobs:
     - name: Build .NET (CRUCIAL pour C#)
       run: |
         dotnet restore
-        dotnet build --no-restore --configuration Releas
+        dotnet build --no-restore --configuration Release
 
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@v3
