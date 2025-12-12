@@ -14,16 +14,24 @@ jobs:
       with:
         dotnet-version: 8.x
 
-    - name: Build .NET uniquement (ignore C++)
+    # 1. Étape de Restauration (Restore)
+    - name: 📦 Restaurer les projets .NET (ignorer C++)
       run: |
-        # Appliquer la propriété de correction au RESTORE et au BUILD
-
-        echo "Restauration des projets .NET uniquement..."
+        # Applique la correction NETSDK1226 ici
         dotnet restore AspNetCore.slnx --verbosity minimal /p:AllowMissingPrunePackageData=true
 
-        echo "Construction des projets .NET uniquement..."
-        # Le '--no-restore' est important ici
-        dotnet build AspNetCore.slnx --no-restore --configuration Release --verbosity minimal /p:AllowMissingPrunePackageData=true /p:RestoreAdditionalProjectSources="" /p:RestoreAdditionalProjectFallbackFolders=""
+    # 2. Étape de Construction (Build)
+    - name: 🔨 Construire les projets .NET (log normal)
+      run: |
+        # Utilise '--no-restore' car la restauration est faite ci-dessus
+        dotnet build AspNetCore.slnx \
+          --no-restore \
+          --configuration Release \
+          --verbosity normal \
+          /p:AllowMissingPrunePackageData=true \
+          /p:RestoreAdditionalProjectSources="" \
+          /p:RestoreAdditionalProjectFallbackFolders=""
+
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@v3
       env:
