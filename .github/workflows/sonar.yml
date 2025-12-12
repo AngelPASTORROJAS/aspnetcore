@@ -35,4 +35,4 @@ jobs:
           -Dsonar.c.file.suffixes=-
           -Dsonar.cpp.file.suffixes=-
           -Dsonar.objc.file.suffixes=-
-          -Dsonar.exclusions=/node_modules/,/out/,/dist/,/build/,/*.dart,/.c,**/.cpp,/*.m,/.mm,**/.h
+          -Dsonar.exclusions=**/*.java,/node_modules/,/out/,/dist/,/build/,**/build-wrapper-dump.json
