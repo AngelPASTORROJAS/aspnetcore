@@ -30,8 +30,8 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
         args: >
-          -Dsonar.projectKey=JulienGrade_vscode
-          -Dsonar.organization=juliengrade
+          -Dsonar.projectKey=AngelPASTORROJAS_aspnetcore
+          -Dsonar.organization=angelpastorrojas
           -Dsonar.c.file.suffixes=-
           -Dsonar.cpp.file.suffixes=-
           -Dsonar.objc.file.suffixes=-
