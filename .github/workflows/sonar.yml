@@ -20,3 +20,16 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@v2
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.projectKey=JulienGrade_vscode
+          -Dsonar.organization=juliengrade
+          -Dsonar.c.file.suffixes=-
+          -Dsonar.cpp.file.suffixes=-
+          -Dsonar.objc.file.suffixes=-
+          -Dsonar.exclusions=/node_modules/,/out/,/dist/,/build/,/*.dart,/.c,**/.cpp,/*.m,/.mm,**/.h
