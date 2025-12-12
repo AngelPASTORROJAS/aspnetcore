@@ -23,6 +23,11 @@ jobs:
       with:
         dotnet-version: 8.x
 
+    - name: Build .NET (CRUCIAL pour C#)
+      run: |
+        dotnet restore
+        dotnet build --no-restore --configuration Releas
+
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@v3
       env:
@@ -32,7 +37,9 @@ jobs:
         args: >
           -Dsonar.projectKey=AngelPASTORROJAS_aspnetcore
           -Dsonar.organization=angelpastorrojas
+          -Dsonar.cs.dotnet_additional_dotnet_references=**/bin/**/*.dll,**/obj/**/*.dll
           -Dsonar.c.file.suffixes=-
           -Dsonar.cpp.file.suffixes=-
           -Dsonar.objc.file.suffixes=-
-          -Dsonar.exclusions=**/*.java,/node_modules/,/out/,/dist/,/build/,**/build-wrapper-dump.json
+          -Dsonar.exclusions=**/*.java,**/*.dart,/node_modules/,/out/,/dist/,/build/,**/build-wrapper-dump.json
+          -Dsonar.scm.disabled=true
