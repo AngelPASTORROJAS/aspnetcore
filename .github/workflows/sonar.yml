@@ -1,50 +1,75 @@
-name: SonarCloud C# Analysis
-on: [push, pull_request]
+name: SonarQube ASP.NET Core
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 jobs:
-  sonar:
-    runs-on: ubuntu-latest
+  build:
+    name: Build and analyze
+    runs-on: windows-latest
+
     steps:
-    - uses: actions/checkout@v4
-      # with:
-      #   fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
 
-    - name: Setup .NET 8 (stable, compatible)
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: 8.x
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
 
-    # 1. Étape de Restauration (Restore)
-    - name: 📦 Restaurer les projets .NET (ignorer C++)
-      run: |
-        # Applique la correction NETSDK1226 ici
-        dotnet restore AspNetCore.slnx \
-          --verbosity normal \
-          /p:AllowMissingPrunePackageData=true \
-          --ignore-failed-sources  # ← Ignore NU1301 Grpc
+      - name: Cache SonarQube Cloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
 
-    # 2. Étape de Construction (Build)
-    - name: 🔨 Build SEULEMENT projets src/ principaux
-      run: |
-        # ... (find et pipeline)
-        find src -name "*.csproj" \
-          -not -path "*/test/*" \
-          -not -path "*/samples/*" \
-          -not -path "*/Grpc/*" \
-          -not -path "*/benchmark*" | \
-        xargs -P 8 -I {} sh -c '
-          echo "Building {}..."
-          dotnet build "{}" --configuration Release --verbosity minimal /p:AllowMissingPrunePackageData=true || echo "Skipped {}"
-        ' # <--- AJOUT CRITIQUE DE L'APOSTROPHE FERMANTE
+      - name: Cache SonarQube Cloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
 
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@v3
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      with:
-        args: >
-          -Dsonar.projectKey=AngelPASTORROJAS_aspnetcore
-          -Dsonar.organization=angelpastorrojas
-          -Dsonar.cs.dotnet_additional_dotnet_references=**/bin/Release/**/*.dll
-          -Dsonar.exclusions=**/bin/**,**/obj/**,**/*.vcxproj,**/*.java,node_modules/,**/Servers/IIS/**,**/Grpc/Interop/**,**/test/**,**/samples/**,**/Grpc/**
+      - name: Install SonarQube Cloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          New-Item -Path ${{ runner.temp }}\scanner -ItemType Directory -Force
+          dotnet tool install dotnet-sonarscanner `
+            --tool-path ${{ runner.temp }}\scanner `
+            --add-source "https://api.nuget.org/v3/index.json" `
+            --ignore-failed-sources
+
+      - name: Generate ASP.NET Core build files
+        shell: powershell
+        run: |
+          eng\build.cmd -noBuildNative -noBuildManaged
+
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        shell: powershell
+        run: |
+          ${{ runner.temp }}\scanner\dotnet-sonarscanner begin `
+            /k:"AngelPASTORROJAS_aspnetcore" `
+            /o:"angelpastorrojas" `
+            /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.token="$env:SONAR_TOKEN" `
+            /d:sonar.python.version="3.11" `
+            /d:sonar.exclusions="src/Components/Shared.JS/**"
+
+          dotnet restore src\Framework\Framework.slnf
+          dotnet build src\Framework\Framework.slnf -c Release --no-restore
+
+          ${{ runner.temp }}\scanner\dotnet-sonarscanner end `
+            /d:sonar.token="$env:SONAR_TOKEN"
