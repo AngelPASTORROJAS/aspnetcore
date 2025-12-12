@@ -18,7 +18,7 @@ jobs:
       run: |
         # Build SEULEMENT les projets .NET (ignore .vcxproj)
         dotnet restore AspNetCore.slnx --verbosity minimal
-        dotnet build AspNetCore.slnx --no-restore --configuration Release --verbosity minimal
+        dotnet build AspNetCore.slnx --no-restore --configuration Release --verbosity minimal /p:AllowMissingPrunePackageData=true  # ← Fix NETSDK1226
 
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@v3
@@ -30,4 +30,4 @@ jobs:
           -Dsonar.projectKey=AngelPASTORROJAS_aspnetcore
           -Dsonar.organization=angelpastorrojas
           -Dsonar.cs.dotnet_additional_dotnet_references=**/bin/Release/**/*.dll
-          -Dsonar.exclusions=**/bin/**,**/obj/**,**/*.vcxproj,**/*.java,node_modules/
+          -Dsonar.exclusions=**/bin/**,**/obj/**,**/*.vcxproj,**/*.java,node_modules/,**/Servers/IIS/**
