@@ -26,8 +26,7 @@ jobs:
     # 2. Étape de Construction (Build)
     - name: 🔨 Build SEULEMENT projets src/ principaux
       run: |
-        # Ignore complètement la solution monolithique
-        # Build parallèle des 100+ projets C# principaux seulement
+        # ... (find et pipeline)
         find src -name "*.csproj" \
           -not -path "*/test/*" \
           -not -path "*/samples/*" \
@@ -36,6 +35,7 @@ jobs:
         xargs -P 8 -I {} sh -c '
           echo "Building {}..."
           dotnet build "{}" --configuration Release --verbosity minimal /p:AllowMissingPrunePackageData=true || echo "Skipped {}"
+        ' # <--- AJOUT CRITIQUE DE L'APOSTROPHE FERMANTE
 
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@v3
