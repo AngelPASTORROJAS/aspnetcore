@@ -6,31 +6,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      # with:
+      #   fetch-depth: 0
 
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 8.x
 
-    - name: Install SonarScanner
-      run: dotnet tool install --global dotnet-sonarscanner
-
-    - name: Restore
+    - name: Restore dependencies
       run: dotnet restore
-
-    - name: SonarCloud Begin
-      run: |
-        dotnet sonarscanner begin \
-          /k:"AngelPASTORROJAS_aspnetcore" \
-          /o:"angelpastorrojas" \
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-          /d:sonar.host.url="https://sonarcloud.io"
-
     - name: Build
-      run: dotnet build --no-restore --configuration Release
-
-    - name: SonarCloud End
-      if: always()
-      run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
