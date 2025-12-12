@@ -45,4 +45,4 @@ jobs:
           -Dsonar.projectKey=AngelPASTORROJAS_aspnetcore
           -Dsonar.organization=angelpastorrojas
           -Dsonar.cs.dotnet_additional_dotnet_references=**/bin/Release/**/*.dll
-          -Dsonar.exclusions=**/bin/**,**/obj/**,**/*.vcxproj,**/*.java,node_modules/,**/Servers/IIS/**,**/Grpc/Interop/**
+          -Dsonar.exclusions=**/bin/**,**/obj/**,**/*.vcxproj,**/*.java,node_modules/,**/Servers/IIS/**,**/Grpc/Interop/**,**/test/**,**/samples/**,**/Grpc/**
