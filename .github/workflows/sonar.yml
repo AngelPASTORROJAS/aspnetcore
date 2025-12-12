@@ -16,9 +16,14 @@ jobs:
 
     - name: Build .NET uniquement (ignore C++)
       run: |
-        # Build SEULEMENT les projets .NET (ignore .vcxproj)
-        dotnet restore AspNetCore.slnx --verbosity minimal
-        dotnet build AspNetCore.slnx --no-restore --configuration Release --verbosity minimal /p:AllowMissingPrunePackageData=true  # ← Fix NETSDK1226
+        # Appliquer la propriété de correction au RESTORE et au BUILD
+
+        echo "Restauration des projets .NET uniquement..."
+        dotnet restore AspNetCore.slnx --verbosity minimal /p:AllowMissingPrunePackageData=true
+
+        echo "Construction des projets .NET uniquement..."
+        # Le '--no-restore' est important ici
+        dotnet build AspNetCore.slnx --no-restore --configuration Release --verbosity minimal /p:AllowMissingPrunePackageData=true
 
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@v3
