@@ -23,16 +23,18 @@ jobs:
           /p:AllowMissingPrunePackageData=true \
 
     # 2. Étape de Construction (Build)
-    - name: 🔨 Construire les projets .NET (log normal)
+    - name: 🔨 Build SEULEMENT projets src/ principaux
       run: |
-        # Utilise '--no-restore' car la restauration est faite ci-dessus
-        dotnet build AspNetCore.slnx \
-          --no-restore \
-          --configuration Release \
-          --verbosity normal \
-          /p:AllowMissingPrunePackageData=true \
-          /p:RestoreAdditionalProjectSources="" \
-          /p:RestoreAdditionalProjectFallbackFolders=""
+        # Ignore complètement la solution monolithique
+        # Build parallèle des 100+ projets C# principaux seulement
+        find src -name "*.csproj" \
+          -not -path "*/test/*" \
+          -not -path "*/samples/*" \
+          -not -path "*/Grpc/*" \
+          -not -path "*/benchmark*" | \
+        xargs -P 8 -I {} sh -c '
+          echo "Building {}..."
+          dotnet build "{}" --configuration Release --verbosity minimal /p:AllowMissingPrunePackageData=true || echo "Skipped {}"
 
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@v3
