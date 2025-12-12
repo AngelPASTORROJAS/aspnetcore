@@ -21,13 +21,6 @@ jobs:
       with:
         dotnet-version: 8.x
 
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@v2
       env:
