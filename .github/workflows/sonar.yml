@@ -21,7 +21,6 @@ jobs:
         dotnet restore AspNetCore.slnx \
           --verbosity minimal \
           /p:AllowMissingPrunePackageData=true \
-          --force  # ← Ignore 1 échec Grpc/Interop
 
     # 2. Étape de Construction (Build)
     - name: 🔨 Construire les projets .NET (log normal)
