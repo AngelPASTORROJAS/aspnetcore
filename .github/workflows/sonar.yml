@@ -19,7 +19,7 @@ jobs:
       run: |
         # Applique la correction NETSDK1226 ici
         dotnet restore AspNetCore.slnx \
-          --verbosity minimal \
+          --verbosity normal \
           /p:AllowMissingPrunePackageData=true \
 
     # 2. Étape de Construction (Build)
