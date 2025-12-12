@@ -9,6 +9,13 @@ jobs:
       # with:
       #   fetch-depth: 0
 
+    - name: Install .NET 10.x
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: |
+          10.x
+        dotnet-quality: preview
+
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v5
       with:
