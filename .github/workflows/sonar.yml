@@ -21,6 +21,7 @@ jobs:
         dotnet restore AspNetCore.slnx \
           --verbosity normal \
           /p:AllowMissingPrunePackageData=true \
+          --ignore-failed-sources  # ← Ignore NU1301 Grpc
 
     # 2. Étape de Construction (Build)
     - name: 🔨 Build SEULEMENT projets src/ principaux
